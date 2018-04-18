@@ -5,6 +5,7 @@ from PIL import Image
 
 ACCEPTED = ['image/jpg', 'image/jpeg']
 MIME = magic.Magic(mime=True)
+QUALITY = 75
 
 def main():
     try:
@@ -30,7 +31,7 @@ def traverse(path):
 
                 print 'compressing ' + i
                 im = Image.open(current)
-                im.save(current, optimize=True, quality=75)
+                im.save(current, optimize=True, quality=QUALITY)
 
 if __name__ == '__main__':
     main()
