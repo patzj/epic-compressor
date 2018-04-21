@@ -1,37 +1,52 @@
 import os
 import sys
+import json
 import magic
 from PIL import Image
 
-ACCEPTED = ['image/jpg', 'image/jpeg']
-MIME = magic.Magic(mime=True)
-QUALITY = 75
+cfg = {}
+mime = None
 
 def main():
     try:
         print 'starting compression'
-        path = os.path.abspath(sys.argv[1])
-        traverse(path)
+        src = os.path.abspath(sys.argv[1])
+        dest = os.path.abspath(sys.argv[2])
+
+        if not os.path.exists(dest):
+            os.mkdir(dest)
+        traverse(src, dest)
     except Exception as e:
         sys.stderr.write(e)
         sys.exit(e.errno)
     else:
         print 'done'
 
-def traverse(path):
-    listdir = os.listdir(path)
-    for i in listdir:
-        current = os.path.abspath(os.path.join(path, i))
-        if os.path.isdir(current):
-            traverse(current)
-        else:
-            if os.path.exists(current) and \
-                os.path.isfile(current) and \
-                MIME.from_file(current) in ACCEPTED:
 
-                print 'compressing ' + i
-                im = Image.open(current)
-                im.save(current, optimize=True, quality=QUALITY)
+def load_cfg():
+    with open('config.json', 'r') as fin:
+        return json.load(fin)
+
+
+def traverse(src, dest):
+    listdir = os.listdir(src)
+    for i in listdir:
+        curr_src = os.path.abspath(os.path.join(src, i))
+        curr_dest = os.path.abspath(os.path.join(dest, i))
+        if os.path.isdir(curr_src):
+            if not os.path.exists(curr_dest):
+                os.mkdir(curr_dest)
+            traverse(curr_src, curr_dest)
+        else:
+            if os.path.exists(curr_src) and \
+                os.path.isfile(curr_src) and \
+                mime.from_file(curr_src) in cfg['accepted']:
+
+                print 'compressing %s -> %s' % (curr_src, curr_dest)
+                im = Image.open(curr_src)
+                im.save(curr_dest, optimize=True, quality=cfg['quality'])
 
 if __name__ == '__main__':
+    cfg = load_cfg()
+    mime = magic.Magic(mime=True)
     main()

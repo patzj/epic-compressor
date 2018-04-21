@@ -1,0 +1,7 @@
+{
+    "quality": 75,
+    "accepted": [
+        "image/jpg",
+        "image/jpeg"
+    ]
+}
